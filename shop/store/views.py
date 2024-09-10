@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from . models import *
+from . utils import CookieCart
 from django.http import JsonResponse
 import json
 
@@ -28,19 +29,15 @@ def cart(request):
         customer = request.user.customer
         order,created=Order.objects.get_or_create(customer=customer,complete=False)
         items = order.orderitem_set.all()
-        cartItems=order.get_cart_quantity()
+        cartItems=order.get_cart_quantity
     else:
-        try:
-            cart = json.loads(request.COOKIES.get('cart',{}))
-        except:
-            cart = {}
-            print('CART',cart)
-        items = []
-        order ={'get_cart_total':0,'get_cart_quantity':0}
-        cartItems=order['get_cart_quantity']
+        cookieData  = CookieCart(request)
+        cartItems = cookieData['cartItems']
+        order = cookieData['order']
+        items = cookieData['items']
        
-        for i in cart:
-            cartItems += cart[i]['quantity']
+
+
     return render(request, 'store/cart.html',{'items':items,'order':order,'cartItems':cartItems})
 
 
